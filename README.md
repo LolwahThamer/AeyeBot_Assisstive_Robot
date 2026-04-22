@@ -1,5 +1,7 @@
 # indoor_robot_control
 
+AeyeBot is an assistive indoor robotic system designed to help visually impaired individuals navigate safely in indoor environments. The main idea of the project is to provide a reliable solution that improves mobility and reduces the risk of collisions with obstacles. The system combines sensors and control mechanisms to give real-time feedback to the user through sound alerts and voice messages, making indoor movement easier and safer.
+
 The Arduino based part of the system is responsible for the basic movement and safety control of the robot. It handles the motor driving system and processes input from infrared (IR) sensors to detect obstacles in the environment. Based on the sensor readings, the Arduino controls the direction of the robot and activates a buzzer when an obstacle is detected. It also allows manual control using a joystick, giving the user the ability to override automatic movement when needed.
 
 The Raspberry Pi based part of the system is used for higher-level processing and user interaction. It runs the object detection model to identify surrounding objects and provide more detailed environmental awareness. In addition, it handles voice feedback using speech APIs to communicate information to the user. This combination of Arduino for real-time control and Raspberry Pi for intelligent processing allows AEyeBot to function as a simple but effective assistive navigation system.
