@@ -1,0 +1,123 @@
+import cv2
+import numpy as np
+import RPi.GPIO as GPIO
+import speech_recognition as sr
+import os
+import threading
+from datetime import datetime
+import subprocess
+import sys
+
+r = sr.Recognizer()
+GPIO.setmode(GPIO.BOARD)
+GPIO.setwarnings(False)
+arduino = 40
+GPIO.setup(arduino, GPIO.OUT)
+
+net = cv2.dnn.readNet("yolov3-tiny.weights", "yolov3-tiny.cfg")
+classes = []
+with open("coco.names", "r") as f:
+    classes = [line.strip() for line in f.readlines()]
+
+layer_names = net.getLayerNames()
+output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
+colors = np.random.uniform(0, 255, size=(len(classes), 2))
+
+is_describing = False
+
+def get_mic_device():
+    try:
+        cmd = "arecord -l | grep -m 1 'card' | awk '{print $2}' | tr -d ':'"
+        card_no = subprocess.check_output(cmd, shell=True).decode().strip()
+        return f"plughw:{card_no},0" if card_no else "default"
+    except:
+        return "default"
+
+def voice_listener():
+    global is_describing
+    mic = get_mic_device()
+    while True:
+        print(f"Listening via {mic}...")
+        os.system(f"arecord -D {mic} -d 5 -f S16_LE -r 16000 -c 1 voice_bg.wav")
+        try:
+            if os.path.exists("voice_bg.wav"):
+                with sr.AudioFile("voice_bg.wav") as source:
+                    audio = r.record(source)
+                    command = r.recognize_google(audio, language="en-US").lower()
+                    print(f"Command: {command}")
+                    
+                    if "describe" in command:
+                        is_describing = True
+                    elif "finish" in command:
+                        is_describing = False
+                        GPIO.output(arduino, False)
+                    if 'define' in command:
+                        print('Robot: I am an AeyeBot, your navgation Vision Assistant, ihelp you to move safely by detecting objects and guiding you through indoor space.')
+                    if 'date' in command or 'time' in command:
+                        print(f"Robot: {datetime.now().strftime('%b %d %Y %H:%M:%S')}")
+        except:
+            pass
+
+t = threading.Thread(target=voice_listener, daemon=True)
+t.start()
+
+
+cap = cv2.VideoCapture(0)
+if not cap.isOpened():
+    print("Error: Camera 0 not found. Trying Camera 1...")
+    cap = cv2.VideoCapture(1)
+
+if not cap.isOpened():
+    print("CRITICAL ERROR: No camera detected! Please check hardware connections.")
+    sys.exit() 
+
+while True:
+    ret, img = cap.read()
+    if not ret or img is None:
+        continue
+
+    if is_describing:
+        height, width, _ = img.shape
+        blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
+        net.setInput(blob)
+        outs = net.forward(output_layers)
+
+        class_ids, confidences, boxes = [], [], []
+        for out in outs:
+            for detection in out:
+                scores = detection[5:]
+                class_id = np.argmax(scores)
+                confidence = scores[class_id]
+                if confidence > 0.3:
+                    center_x, center_y = int(detection[0] * width), int(detection[1] * height)
+                    w, h = int(detection[2] * width), int(detection[3] * height)
+                    x, y = int(center_x - w / 2), int(center_y - h / 2)
+                    boxes.append([x, y, w, h])
+                    confidences.append(float(confidence))
+                    class_ids.append(class_id)
+
+        indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.3, 0.4)
+        
+        found_target = False
+        for i in range(len(boxes)):
+            if i in indexes:
+                x, y, w, h = boxes[i]
+                label = str(classes[class_ids[i]])
+                cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                cv2.putText(img, label, (x, y + 30), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 0), 2)
+                
+                targets = ["person", "bottle", "laptop", "cup", "keyboard", "monitor"]
+                if label in targets:
+                    print(f"Detected: {label}")
+                    found_target = True
+
+        
+        if not found_target:
+            GPIO.output(arduino, False)
+
+    cv2.imshow("Vision System", img)
+    if cv2.waitKey(1) == 27:
+        break
+
+cap.release()
+cv2.destroyAllWindows()
