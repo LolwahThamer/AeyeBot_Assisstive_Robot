@@ -1,4 +1,4 @@
-# indoor_robot_control
+# aeyebot_control_system
 
 AeyeBot is an assistive indoor robotic system designed to help visually impaired individuals navigate safely in indoor environments. The main idea of the project is to provide a reliable solution that improves mobility and reduces the risk of collisions with obstacles. The system combines sensors and control mechanisms to give real-time feedback to the user through sound alerts and voice messages, making indoor movement easier and safer.
 
