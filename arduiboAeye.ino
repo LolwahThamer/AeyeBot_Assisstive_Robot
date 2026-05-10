@@ -6,8 +6,8 @@
 #define ENLeft 9
 #define IN_right 6
 #define IN_left 8
-#define RIGHTSPEED  150
-#define LEFTSPEED  150
+#define RIGHTSPEED  180
+#define LEFTSPEED  180
 
 int ADDD=10;
 int sensor1,sensor2,sensor3;
@@ -113,8 +113,8 @@ void fwd() {
 
 void RIGHT() {
     Serial.print(" right ");
-    analogWrite(ENRight,LEFTSPEED);
-    analogWrite(ENLeft,LEFTSPEED);
+    analogWrite(ENRight,LEFTSPEED+50);
+    analogWrite(ENLeft,LEFTSPEED+50);
     
     digitalWrite(IN_right, HIGH);
     digitalWrite(IN_left, LOW);
@@ -124,8 +124,8 @@ void RIGHT() {
 void LEFT() {
     Serial.print(" left ");
 
-    analogWrite(ENRight,LEFTSPEED);
-    analogWrite(ENLeft,LEFTSPEED);//
+    analogWrite(ENRight,LEFTSPEED+50);
+    analogWrite(ENLeft,LEFTSPEED+50);//
 
     digitalWrite(IN_right, LOW);
     digitalWrite(IN_left, HIGH);
