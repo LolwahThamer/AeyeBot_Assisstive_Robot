@@ -168,4 +168,3 @@ AeyeBot successfully demonstrates a dual‑controller assistive robot for visual
 [24] Karthiyayini, J. et al. (2025). Vision Assist – Object detection for the blind.  
 [25] World Health Organization. (2023). Blindness and vision impairment.  
 [29] IAPB (2025). Global data – Vision Atlas.  
-[30] Alenezi, L. et al. (2026). AeyeBot_Assistive_Robot. GitHub.
