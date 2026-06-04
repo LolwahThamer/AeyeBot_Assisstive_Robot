@@ -1,5 +1,3 @@
-# AeyeBot_control_system
-
 # AeyeBot – Assistive Indoor Navigation Robot for Visually Impaired Users
 
 An advanced robotic assistant that helps visually impaired people navigate indoor spaces autonomously and safely. AeyeBot uses a dual‑controller architecture (Arduino Mega 2560 for real‑time obstacle avoidance, Raspberry Pi 5 for AI‑based object detection and voice interaction). It achieves 95% object detection accuracy, 96.7% obstacle detection accuracy, and 6‑8 hours of battery life.
